@@ -28,8 +28,11 @@ def get_stores():
 def create_store():
     request_data = request.get_json()
     new_store = {"name": request_data["name"], "items": []}
-    stores.append(new_store)
-    return new_store, 201
+    if new_store["name"] not in [store["name"] for store in stores]:
+        stores.append(new_store)
+        return new_store, 201
+    else:
+        return {"message": "store already exists"}, 400
 
 
 @app.post("/store/<string:name>/item")
@@ -38,6 +41,9 @@ def create_item_in_store(name):
     for store in stores:
         if store["name"] == name:
             new_item = {"name": request_data["name"], "price": request_data["price"]}
-            store["items"].append(new_item)
-            return new_item, 201
+            if new_item["name"] not in [item["name"] for item in store["items"]]:
+                store["items"].append(new_item)
+                return new_item, 201
+            else:
+                return {"message": "item already exists"}, 400
     return {"message": "store not found"}, 404
