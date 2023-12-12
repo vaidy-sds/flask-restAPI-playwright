@@ -2,7 +2,7 @@
 
 
 Goals
-- [ ] Create Rest API with Flask
+- [x] Create Rest API with Flask
 - [ ] Create a docker image
 - [ ] Flask smorest integration
 - [ ] Sqlalchemy integration
