@@ -13,7 +13,6 @@ Goals
 
 
 Docker commands:
-docker build -t restapis-flask-python .
-docker run -d -p 5005:5000 restapis-flask-python
-
+docker build -t flask-smorest-api .
+docker run -dp 5005:5000 -w /app -v "$(pwd):/app" flask-smorest-api
 ```
