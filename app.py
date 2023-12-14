@@ -9,6 +9,11 @@ app = Flask(__name__)
 @app.post("/store")
 def create_store():
     store_data = request.get_json()
+    if "name" not in store_data:
+        abort(400, message="Missing required fields")
+    for store in stores.values():
+        if store["name"] == store_data["name"]:
+            abort(400, message="Store already exists")
     store_id = uuid.uuid4().hex
     new_store = {**store_data, "id": store_id}
     stores[store_id] = new_store
@@ -18,13 +23,24 @@ def create_store():
 @app.post("/item")
 def create_item():
     item_data = request.get_json()
+    if (
+            "price" not in item_data or
+            "store_id" not in item_data or
+            "name" not in item_data
+    ):
+        abort(400, message="Missing required fields")
     if item_data["store_id"] not in stores:
         abort(404, message="Store not found")
-    else:
-        item_id = uuid.uuid4().hex
-        new_item = {**item_data, "id": item_id}
-        items[item_id] = new_item
-        return new_item, 201
+
+    for item in items.values():
+        if (item["name"] == item_data["name"] and
+                item["store_id"] == item_data["store_id"]):
+            abort(400, message="Item already exists in store")
+
+    item_id = uuid.uuid4().hex
+    new_item = {**item_data, "id": item_id}
+    items[item_id] = new_item
+    return new_item, 201
 
 
 # get all stores
@@ -62,5 +78,15 @@ def get_items_in_store(store_id):
 def get_item(item_id):
     try:
         return items[item_id]
+    except KeyError:
+        abort(404, message="Item not found")
+
+
+# delete an item by id
+@app.delete("/item/<string:item_id>")
+def delete_item(item_id):
+    try:
+        del items[item_id]
+        return {"message": "Item deleted"}
     except KeyError:
         abort(404, message="Item not found")
